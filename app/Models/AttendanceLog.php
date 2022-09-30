@@ -62,6 +62,9 @@ class AttendanceLog extends Model
         if(auth()->user()->type != 'super_admin' && auth()->user()->type == 'supervisor') {
             $logs->where('users.supervisor_id', auth()->user()->id);
         }
+        if(auth()->user()->type != 'super_admin' && auth()->user()->type == 'manager') {
+            $logs->where('users.manager_id', auth()->user()->id);
+        }
 
 
         return $logs->get();

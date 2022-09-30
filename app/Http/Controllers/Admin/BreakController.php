@@ -20,7 +20,7 @@ class BreakController extends Controller
         $pendingRequests = [];
         $activeRequests = [];
 
-        // If the current user type is supervisor
+        // current user type is supervisor
         $supervisorId = auth()->user()->id;
 
         // If the current user type is employee and assigned as supervisor assistant
@@ -34,6 +34,17 @@ class BreakController extends Controller
         if(auth()->user()->is_assist){
             $requests->where('employee_id', '!=', auth()->id());
         }
+
+        // if the current user type is manager
+        if(auth()->user()->type == 'manager') {
+            $manager_id = auth()->user()->id;
+
+            // Get all today break requests which associated with that manager
+            $requests = BreakModel::with('employee')->whereHas('employee', function ($query) use($manager_id) {
+                $query->where('manager_id', $manager_id);
+            })->today()->orderBy('id', 'desc');
+
+        } 
 
         // Specify for each request which it is a pending or active request
         $requests->get()->each(function ($request) use (&$pendingRequests, &$activeRequests) {
