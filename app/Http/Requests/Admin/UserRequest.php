@@ -27,10 +27,9 @@ class UserRequest extends FormRequest
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|confirmed',
-            'type' => ['required', 'in:employee,supervisor'],
+            'type' => ['required', 'in:employee,supervisor,manager'],
             'code' => ['required', 'numeric'],
             'extension' => ['sometimes'],
-            'supervisor_id'=> 'numeric'
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

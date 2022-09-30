@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Request;
 use App\Models\User;
 use App\Imports\UsersImport;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\SupervisorEmpRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\Admin\UserRequest;
 use Illuminate\Http\Request as HttpRequest;
-use Request;
+use App\Http\Requests\Admin\SupervisorEmpRequest;
+use App\Http\Requests\Admin\ManagerSupervisorRequest;
 
 class UserController extends Controller
 {
@@ -45,14 +46,42 @@ class UserController extends Controller
             ]);
         } elseif(auth()->user()->type == 'manager') {
             $users->where('manager_id', '=', auth()->user()->id)
-            ->whereIn('supervisor_id', auth()->user()->managerSupervisors->pluck('id'));
+            ->orWhereIn('supervisor_id', auth()->user()->managerSupervisors->pluck('id'));
+
+            return DataTables::of($users)
+                ->addColumn('record_select', 'admin.users.data_table.record_select')
+                ->editColumn('created_at', function (User $user) {
+                    return ($user->created_at) ? $user->created_at->format('Y-m-d') : "";
+                })
+                ->addColumn('related_supervisor', function(User $user) {
+                    return ($user->supervisor) ? $user->supervisor->name : "~";
+                })
+                ->addColumn('actions', 'admin.users.data_table.actions')
+                ->rawColumns(['record_select', 'actions'])
+                ->toJson();
         }
-        
+
+        if(auth()->user()->type == 'super_admin') {
+            return DataTables::of($users)
+                ->addColumn('record_select', 'admin.users.data_table.record_select')
+                ->editColumn('created_at', function (User $user) {
+                    return ($user->created_at) ? $user->created_at->format('Y-m-d') : "";
+                })
+                ->addColumn('related_supervisor', function(User $user) {
+                    return ($user->supervisor) ? $user->supervisor->name : "~";
+                })
+                ->addColumn('related_manager', function(User $user) {
+                    return ($user->supervisorManager) ? $user->supervisorManager->name : "~";
+                })
+                ->addColumn('actions', 'admin.users.data_table.actions')
+                ->rawColumns(['record_select', 'actions'])
+                ->toJson();
+        }
 
         return DataTables::of($users)
             ->addColumn('record_select', 'admin.users.data_table.record_select')
             ->editColumn('created_at', function (User $user) {
-                return $user->created_at->format('Y-m-d');
+                return ($user->created_at) ? $user->created_at->format('Y-m-d') : "";
             })
             ->addColumn('actions', 'admin.users.data_table.actions')
             ->rawColumns(['record_select', 'actions'])
@@ -62,7 +91,8 @@ class UserController extends Controller
     public function create()
     {
         $supervisors    = User::where('type', 'supervisor')->get();
-        return view('admin.users.create', compact('supervisors'));
+        $managers    = User::where('type', 'manager')->get();
+        return view('admin.users.create', compact('supervisors', 'managers'));
     } // end of create
 
     public function store(UserRequest $request)
@@ -143,5 +173,25 @@ class UserController extends Controller
         return response()->json(['message'=>'record updated successfully']);
     }
     // End Supervisor Assistant
+
+
+    // Start Assign Manager To Supervisor
+    public function showAssignManager()
+    {
+        $supervisors    = User::where('type', 'supervisor')->get();
+        $managers      = User::where('type', 'manager')->get();
+        return view('admin.users.manager_supervisors', compact(['supervisors', 'managers']));
+    }
+
+    public function assignManager(ManagerSupervisorRequest $request)
+    {
+        $supervisors  = $request->supervisors;
+
+        User::whereIn('id', $supervisors)->update(['manager_id'=>$request->manager_id]);
+
+        session()->flash('success', __('site.assigned_successfully'));
+        return redirect()->route('admin.users.index');
+    }
+    // End Assign Manager To Supervisor
 
 }//end of controller

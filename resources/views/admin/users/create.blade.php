@@ -28,8 +28,20 @@
                 <div class="form-group">
                     <legend>Choose Supervisor<span class="text-danger">*</span></legend>
                     <select name="supervisor_id" id="s2" class="form-control">
+                        <option selected>---</option>
                         @foreach($supervisors as $supervisor)
                         <option value="{{$supervisor->id}}">{{$supervisor->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- All Managers --}}
+                <div class="form-group">
+                    <legend>Choose Manager<span class="text-danger">*</span></legend>
+                    <select name="manager_id" class="form-control">
+                        <option selected>---</option>
+                        @foreach($managers as $manager)
+                        <option value="{{$manager->id}}">{{$manager->name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -62,8 +74,9 @@
                 <div class="form-group">
                     <label>Select Type </label>
                     <select class="form-control" name="type">
-                        <option value="employee" {{ old('type') == 'employee' ? 'selected' : ''}}>employee</option>
-                        <option value="supervisor" {{ old('type') == 'supervisor' ? 'selected' : ''}}>supervisor</option>
+                        <option value="employee" {{ old('type') == 'employee' ? 'selected' : ''}}>Employee</option>
+                        <option value="supervisor" {{ old('type') == 'supervisor' ? 'selected' : ''}}>Supervisor</option>
+                        <option value="manager" {{ old('type') == 'manager' ? 'selected' : ''}}>Manager</option>
                     </select>
                 </div>
 

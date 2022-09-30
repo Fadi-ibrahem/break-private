@@ -18,28 +18,28 @@
 
         <div class="tile shadow">
 
-            <form method="post" action="{{ route('admin.users.assign') }}">
+            <form method="post" action="{{ route('admin.users.assign.manager') }}">
                 @csrf
                 @method('post')
 
                 @include('admin.partials._errors')
 
                 <div class="form-group">
-                    <legend>Choose Supervisor<span class="text-danger">*</span></legend>
-                    <select name="supervisor_id" id="s2" class="form-control">
+                    <legend>Choose Manager<span class="text-danger">*</span></legend>
+                    <select name="manager_id" id="s2" class="form-control">
                         <option selected disabled>---</option>
-                        @foreach($supervisors as $supervisor)
-                        <option value="{{$supervisor->id}}">{{$supervisor->name}}</option>
+                        @foreach($managers as $manager)
+                        <option value="{{$manager->id}}">{{$manager->name}}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="form-group">
                 <fieldset>
-                    <legend>Select Employees To A Specific Supervisor<span class="text-danger">*</span></legend>
-                    <select name="employees[]" multiple="multiple" class="form-control js-example-basic-multiple">
-                        @foreach($employees as $employee)
-                        <option value="{{$employee->id}}">{{$employee->name}} &lpar; {{$employee->code}} &rpar;</option>
+                    <legend>Select Supervisor To A Specific Manager<span class="text-danger">*</span></legend>
+                    <select name="supervisors[]" multiple="multiple" class="form-control js-example-basic-multiple">
+                        @foreach($supervisors as $supervisor)
+                        <option value="{{$supervisor->id}}">{{$supervisor->name}} &lpar; {{$supervisor->code}} &rpar;</option>
                         @endforeach
                     </select>
                 </fieldset>

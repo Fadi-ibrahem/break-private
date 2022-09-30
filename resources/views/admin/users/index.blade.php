@@ -67,11 +67,12 @@
                     </form><!-- end of form -->
                     @endif
 
-                    {{-- Start Assign New Employees --}}
+                    {{-- Start Assign New Supervisors & Managers --}}
                     @if(auth()->user()->type == 'super_admin')
                         <a href="{{ route('admin.users.showAssign') }}" class="btn btn-primary"><i class="fa fa-plus"></i> @lang('site.assign_emp_to_supervisor')</a>
+                        <a href="{{ route('admin.users.showAssignManager') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Assign Manager to Supervisor</a>
                     @endif
-                    {{-- End Assign New Employees --}}
+                    {{-- End Assign New Supervisors & Managers --}}
 
                 </div>
 
@@ -109,6 +110,12 @@
                                     <th>@lang('users.code')</th>
                                     <th>@lang('users.extension')</th>
                                     <th>@lang('users.type')</th>
+                                    @if (auth()->user()->type == 'manager' || auth()->user()->type == 'super_admin')
+                                        <th>His/Her Supervisor</th>
+                                    @endif
+                                    @if (auth()->user()->type == 'super_admin')
+                                        <th>His/Her Manager</th>
+                                    @endif
                                     <th>@lang('site.created_at')</th>
                                     <th>@lang('site.action')</th>
                                 </tr>
@@ -132,6 +139,145 @@
 @push('scripts')
 
 <script>
+    @if(auth()->user()->type == 'super_admin')
+    let usersTable = $('#users-table').DataTable({
+        dom: "tiplr",
+        serverSide: true,
+        processing: true,
+        "language": {
+            "url": "{{ asset('admin_assets/datatable-lang/' . app()->getLocale() . '.json') }}"
+        },
+        ajax: {
+            url: "{{ route('admin.users.data') }}",
+        },
+        columns: [{
+                data: 'record_select',
+                name: 'record_select',
+                searchable: false,
+                sortable: false,
+                width: '1%'
+            },
+            {
+                data: 'name',
+                name: 'name'
+            },
+            {
+                data: 'email',
+                name: 'email'
+            },
+            {
+                data: 'code',
+                name: 'code'
+            },
+            {
+                data: 'extension',
+                name: 'extension'
+            },
+            {
+                data: 'type',
+                name: 'type'
+            },
+            {
+                data: 'related_supervisor',
+                name: 'related_supervisor'
+            },
+            {
+                data: 'related_manager',
+                name: 'related_manager'
+            },
+            {
+                data: 'created_at',
+                name: 'created_at',
+                searchable: false
+            },
+            {
+                data: 'actions',
+                name: 'actions',
+                searchable: false,
+                sortable: false,
+                width: '20%'
+            },
+        ],
+        order: [
+            [2, 'desc']
+        ],
+        drawCallback: function(settings) {
+            $('.record__select').prop('checked', false);
+            $('#record__select-all').prop('checked', false);
+            $('#record-ids').val();
+            $('#bulk-delete').attr('disabled', true);
+        }
+    });
+    @endif()
+
+    @if(auth()->user()->type == 'manager')
+    let usersTable = $('#users-table').DataTable({
+        dom: "tiplr",
+        serverSide: true,
+        processing: true,
+        "language": {
+            "url": "{{ asset('admin_assets/datatable-lang/' . app()->getLocale() . '.json') }}"
+        },
+        ajax: {
+            url: "{{ route('admin.users.data') }}",
+        },
+        columns: [{
+                data: 'record_select',
+                name: 'record_select',
+                searchable: false,
+                sortable: false,
+                width: '1%'
+            },
+            {
+                data: 'name',
+                name: 'name'
+            },
+            {
+                data: 'email',
+                name: 'email'
+            },
+            {
+                data: 'code',
+                name: 'code'
+            },
+            {
+                data: 'extension',
+                name: 'extension'
+            },
+            {
+                data: 'type',
+                name: 'type'
+            },
+            {
+                data: 'related_supervisor',
+                name: 'related_supervisor'
+            },
+            {
+                data: 'created_at',
+                name: 'created_at',
+                searchable: false
+            },
+            {
+                data: 'actions',
+                name: 'actions',
+                searchable: false,
+                sortable: false,
+                width: '20%'
+            },
+        ],
+        order: [
+            [2, 'desc']
+        ],
+        drawCallback: function(settings) {
+            $('.record__select').prop('checked', false);
+            $('#record__select-all').prop('checked', false);
+            $('#record-ids').val();
+            $('#bulk-delete').attr('disabled', true);
+        }
+    });
+    @endif()
+
+    @if(auth()->user()->type == 'supervisor')
     let usersTable = $('#users-table').DataTable({
         dom: "tiplr",
         serverSide: true,
@@ -192,6 +338,7 @@
             $('#bulk-delete').attr('disabled', true);
         }
     });
+    @endif()
 
     $('#data-table-search').keyup(function() {
         usersTable.search(this.value).draw();

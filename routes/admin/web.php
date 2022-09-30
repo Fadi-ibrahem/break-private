@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 
 Route::group(
     [
-        'middleware' => ['auth', 'IsManager'],
+        'middleware' => ['auth', 'IsResponsible'],
         'as' => 'admin.',
         'prefix' => LaravelLocalization::setLocale() . '/admin',
     ],
@@ -33,7 +33,10 @@ Route::group(
         Route::delete('users/bulk_delete', 'UserController@bulkDelete')->name('users.bulk_delete');
         Route::get('users/assign', 'UserController@showAssign')->name('users.showAssign')->middleware('isSuperAdmin');
         Route::post('users/assign', 'UserController@assign')->name('users.assign')->middleware('isSuperAdmin');
+        Route::get('users/assign/manager', 'UserController@showAssignManager')->name('users.showAssignManager')->middleware('isSuperAdmin');
+        Route::post('users/assign/manager', 'UserController@assignManager')->name('users.assign.manager')->middleware('isSuperAdmin');
         Route::post('users/assist', 'UserController@changeAssistStatus')->name('users.assist');
+
         Route::resource('users', 'UserController');
 
         //setting routes
@@ -52,23 +55,17 @@ Route::group(
         Route::get('breaks', 'BreakController@index')->name('breaks.index');
         Route::post('breaks/{break}', 'BreakController@update')->name('breaks.update');
 
+        
+
         Route::get('/test', function() {
-            // elseif(auth()->user()->type == 'manager') {
-            //     $users->where([
-            //         ['type', '=', 'employee'],
-            //         ['manager_id', '=', auth()->user()->id],
-            //     ])
-            //     ->whereIn('supervisor_id', auth()->user()->managerSupervisors->pluck('id'));
-            // }
+            $manager = User::find(163);
 
-            // $manager = User::find(163);
-
-            // $users = User::whereIn('supervisor_id', $manager->managerSupervisors->pluck('id'))->get();
+            $users = User::whereIn('supervisor_id', $manager->managerSupervisors->pluck('id'))->get();
 
 
-            // foreach($users as $user) {
-            //     dump($user->name);
-            // }
+            foreach($users as $user) {
+                dump($user->name);
+            }
         });
 
     }

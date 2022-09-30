@@ -16,37 +16,37 @@
     <input type="checkbox" class="check" @if ($is_assist) {{ 'checked' }} @endif
         class="assist-checkbox" id="{{ $id }}">
     <label> Is Assistant ?</label>
-@endif
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $("input:checkbox").click(function() {
-
-            let status = null;
-
-            if ($(this).prop('checked') == true) {
-                status = 1;
-            } else if ($(this).prop('checked') == false) {
-                status = 0;
-            }
-
-            $.ajax({
-                url: "{{ route('admin.users.assist') }}",
-                type: 'POST',
-                data: {
-                    id: $(this).attr("id"),
-                    status: status
-                },
-                success: function(result) {
-                    new Noty({
-                        layout: 'topRight',
-                        type: 'alert',
-                        text: result.message,
-                        killer: true,
-                        timeout: 2000,
-                    }).show();
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("input:checkbox").click(function() {
+    
+                let status = null;
+    
+                if ($(this).prop('checked') == true) {
+                    status = 1;
+                } else if ($(this).prop('checked') == false) {
+                    status = 0;
                 }
+    
+                $.ajax({
+                    url: "{{ route('admin.users.assist') }}",
+                    type: 'POST',
+                    data: {
+                        id: $(this).attr("id"),
+                        status: status
+                    },
+                    success: function(result) {
+                        new Noty({
+                            layout: 'topRight',
+                            type: 'alert',
+                            text: result.message,
+                            killer: true,
+                            timeout: 2000,
+                        }).show();
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
+@endif
